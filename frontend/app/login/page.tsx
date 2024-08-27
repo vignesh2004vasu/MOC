@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
@@ -7,6 +8,7 @@ const LoginForm = () => {
     password: "",
   });
   const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -30,6 +32,7 @@ const LoginForm = () => {
       if (response.ok) {
         const data = await response.json();
         console.log("Login successful", data);
+        router.push("/dashboard");
         // Handle successful login (e.g., save token, redirect)
       } else {
         const errorData = await response.json();
