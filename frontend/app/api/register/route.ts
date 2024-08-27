@@ -15,8 +15,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'User already exists' }, { status: 400 });
     }
 
-    // Create user with plaintext password
-    const user = await User.create({ name, email, password });
+    const user = await User.create({ name, email, password});
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, { expiresIn: '30d' });
 
