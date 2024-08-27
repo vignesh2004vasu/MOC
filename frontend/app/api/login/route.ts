@@ -1,21 +1,19 @@
-import { connectMongoDB } from '@/lib/db'; // Adjust path if needed
-import User from '@/models/User'; // Adjust path if needed
+import { connectMongoDB } from '@/lib/db'; 
+import User from '@/models/User'; 
+import { NextResponse } from 'next/server';
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
   try {
     await connectMongoDB();
+    
     const { email, password } = await req.json();
+    
     const user = await User.findOne({ email });
 
     if (user) {
-      console.log("Stored password:", user.password); // Log stored password
-      console.log("Entered password:", password); // Log entered password
-      
-      // Compare plaintext passwords
-      const isMatch = password === user.password;
-      console.log("Password match:", isMatch); // Ensure this is true
+      const isMatch = await bcrypt.compare(password, user.password);
 
       if (isMatch) {
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, { expiresIn: '30d' });

@@ -1,21 +1,24 @@
-import { connectMongoDB } from '@/lib/db'; // Adjust path if needed
-import User from '@/models/User'; // Adjust path if needed
+import { connectMongoDB } from '@/lib/db'; 
+import User from '@/models/User'; 
 import { NextResponse } from 'next/server';
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 export async function POST(req: Request) {
   try {
     await connectMongoDB();
-
+    
     const { name, email, password } = await req.json();
-
+    
     const userExists = await User.findOne({ email });
 
     if (userExists) {
       return NextResponse.json({ message: 'User already exists' }, { status: 400 });
     }
 
-    const user = await User.create({ name, email, password});
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    const user = await User.create({ name, email, password: hashedPassword });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, { expiresIn: '30d' });
 
