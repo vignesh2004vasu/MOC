@@ -25,26 +25,8 @@ type CarbonEmission = {
 // Conversion function from kg to metric tons
 const kgToTons = (kg: number): number => kg / 1000;
 
-// Function to aggregate emissions by date
-const aggregateByDate = (data: CarbonEmission[]): { date: string; totalEmissions: number }[] => {
-  const aggregated: { [key: string]: number } = {};
-
-  data.forEach(entry => {
-    if (aggregated[entry.date]) {
-      aggregated[entry.date] += kgToTons(entry.totalEmissions);
-    } else {
-      aggregated[entry.date] = kgToTons(entry.totalEmissions);
-    }
-  });
-
-  return Object.keys(aggregated).map(date => ({
-    date,
-    totalEmissions: aggregated[date]
-  }));
-};
-
 const Page = () => {
-  const [emissionsData, setEmissionsData] = useState<{ date: string; totalEmissions: number }[]>([]);
+  const [emissionsData, setEmissionsData] = useState<CarbonEmission[]>([]);
   const [currentEmissions, setCurrentEmissions] = useState<CarbonEmission | null>(null);
   const [averageEmissions, setAverageEmissions] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -58,17 +40,12 @@ const Page = () => {
           throw new Error('Failed to fetch data');
         }
         const data = await response.json();
-        const emissions = data.carbonEmissions;
-        
-        // Aggregate data by date
-        const aggregatedData = aggregateByDate(emissions);
+        setEmissionsData(data.carbonEmissions);
+        setCurrentEmissions(data.carbonEmissions[data.carbonEmissions.length - 1]);
 
-        setEmissionsData(aggregatedData);
-        setCurrentEmissions(emissions[emissions.length - 1]);
-        
-        const totalEmissions = emissions.reduce((sum: number, day: CarbonEmission) => sum + day.totalEmissions, 0);
-        setAverageEmissions(kgToTons(totalEmissions / emissions.length));
-        
+        const totalEmissions = data.carbonEmissions.reduce((sum: number, day: CarbonEmission) => sum + day.totalEmissions, 0);
+        setAverageEmissions(kgToTons(totalEmissions / data.carbonEmissions.length));
+
         setIsLoading(false);
       } catch (err) {
         setError('Failed to load data. Please try again later.');
@@ -141,7 +118,7 @@ const Page = () => {
         <CardContent>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={emissionsData}>
+              <LineChart data={emissionsData.map(d => ({ ...d, totalEmissions: kgToTons(d.totalEmissions) }))}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis />
