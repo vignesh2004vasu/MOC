@@ -50,6 +50,19 @@ export async function POST(req: Request) {
   }
 }
 
+export async function GET(req: Request) {
+  try {
+    await connectMongoDB();
+
+    const carbonEmissions = await CarbonEmission.find({});
+
+    return NextResponse.json({ carbonEmissions });
+  } catch (error) {
+    console.error('Error fetching carbon emission records:', error);
+    return NextResponse.json({ message: 'Server error' }, { status: 500 });
+  }
+}
+
 function calculateActivityEmission(activityValue: number, activityHours: number): number {
   return activityValue * activityHours * 0.025;
 }
