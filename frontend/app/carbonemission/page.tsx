@@ -14,7 +14,9 @@ const CarbonEmissionForm = () => {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -31,9 +33,9 @@ const CarbonEmissionForm = () => {
       });
 
       if (response.ok) {
+        router.push("/dashboard");
         const data = await response.json();
         console.log("Carbon emission record created", data);
-        router.push("/success");
       } else {
         const errorData = await response.json();
         setError(errorData.message || "Submission failed");
@@ -75,15 +77,24 @@ const CarbonEmissionForm = () => {
             >
               Activity
             </label>
-            <input
-              type="text"
+            <select
               name="activity"
               id="activity"
               value={formData.activity}
               onChange={handleChange}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
               required
-            />
+            >
+              <option value="" disabled>
+                Select an activity
+              </option>
+              <option value="excavation">Excavation</option>
+              <option value="transportation">Transportation</option>
+              <option value="processing">Processing</option>
+              <option value="overburden management">
+                Overburden Management
+              </option>
+            </select>
           </div>
           <div>
             <label
