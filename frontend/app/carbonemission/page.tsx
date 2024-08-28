@@ -91,7 +91,7 @@ const CarbonEmissionForm = () => {
               <option value="excavation">Excavation</option>
               <option value="transportation">Transportation</option>
               <option value="processing">Processing</option>
-              <option value="overburden management">
+              <option value="overburden">
                 Overburden Management
               </option>
             </select>

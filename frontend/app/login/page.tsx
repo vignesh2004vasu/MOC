@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import Navbar from "@/components/Navbar";
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
@@ -45,6 +46,7 @@ const LoginForm = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center">
+    
       <div className="w-full max-w-md p-8 space-y-4 bg-white rounded shadow-lg">
         <h2 className="text-2xl font-bold text-center">Login</h2>
         {error && <p className="text-red-500 text-center">{error}</p>}
