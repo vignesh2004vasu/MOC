@@ -22,8 +22,29 @@ type CarbonEmission = {
   timestamp: string;
 };
 
+// Conversion function from kg to metric tons
+const kgToTons = (kg: number): number => kg / 1000;
+
+// Function to aggregate emissions by date
+const aggregateByDate = (data: CarbonEmission[]): { date: string; totalEmissions: number }[] => {
+  const aggregated: { [key: string]: number } = {};
+
+  data.forEach(entry => {
+    if (aggregated[entry.date]) {
+      aggregated[entry.date] += kgToTons(entry.totalEmissions);
+    } else {
+      aggregated[entry.date] = kgToTons(entry.totalEmissions);
+    }
+  });
+
+  return Object.keys(aggregated).map(date => ({
+    date,
+    totalEmissions: aggregated[date]
+  }));
+};
+
 const Page = () => {
-  const [emissionsData, setEmissionsData] = useState<CarbonEmission[]>([]);
+  const [emissionsData, setEmissionsData] = useState<{ date: string; totalEmissions: number }[]>([]);
   const [currentEmissions, setCurrentEmissions] = useState<CarbonEmission | null>(null);
   const [averageEmissions, setAverageEmissions] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,16 +53,21 @@ const Page = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/carbonEmissions');
+        const response = await fetch('/api/carbonemission');
         if (!response.ok) {
           throw new Error('Failed to fetch data');
         }
         const data = await response.json();
-        setEmissionsData(data.carbonEmissions);
-        setCurrentEmissions(data.carbonEmissions[data.carbonEmissions.length - 1]);
+        const emissions = data.carbonEmissions;
         
-        const totalEmissions = data.carbonEmissions.reduce((sum: number, day: CarbonEmission) => sum + day.totalEmissions, 0);
-        setAverageEmissions(totalEmissions / data.carbonEmissions.length);
+        // Aggregate data by date
+        const aggregatedData = aggregateByDate(emissions);
+
+        setEmissionsData(aggregatedData);
+        setCurrentEmissions(emissions[emissions.length - 1]);
+        
+        const totalEmissions = emissions.reduce((sum: number, day: CarbonEmission) => sum + day.totalEmissions, 0);
+        setAverageEmissions(kgToTons(totalEmissions / emissions.length));
         
         setIsLoading(false);
       } catch (err) {
@@ -76,7 +102,7 @@ const Page = () => {
             <CardDescription>Metric tons of CO2</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{currentEmissions.totalEmissions.toFixed(2)}</p>
+            <p className="text-2xl font-bold">{kgToTons(currentEmissions.totalEmissions).toFixed(2)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -85,7 +111,7 @@ const Page = () => {
             <CardDescription>Metric tons of CO2</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{currentEmissions.activityEmission.toFixed(2)}</p>
+            <p className="text-2xl font-bold">{kgToTons(currentEmissions.activityEmission).toFixed(2)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -94,7 +120,7 @@ const Page = () => {
             <CardDescription>Metric tons</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{currentEmissions.methaneReleased.toFixed(2)}</p>
+            <p className="text-2xl font-bold">{kgToTons(currentEmissions.methaneReleased).toFixed(2)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -103,7 +129,7 @@ const Page = () => {
             <CardDescription>Metric tons of CO2 per employee</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{currentEmissions.perCapitaEmissions.toFixed(2)}</p>
+            <p className="text-2xl font-bold">{kgToTons(currentEmissions.perCapitaEmissions).toFixed(2)}</p>
           </CardContent>
         </Card>
       </div>
@@ -156,10 +182,10 @@ const Page = () => {
             </AlertDescription>
           </Alert>
           <div className="mt-4 space-y-2">
-            <p><strong>Methane Capture:</strong> Implement systems to capture and utilize the {currentEmissions.methaneReleased.toFixed(2)} metric tons of methane released.</p>
-            <p><strong>Activity Optimization:</strong> Review and optimize the {currentEmissions.activity} process to reduce its {currentEmissions.activityEmission.toFixed(2)} metric tons of CO2 emissions.</p>
-            <p><strong>Employee Engagement:</strong> Develop programs to help reduce the {currentEmissions.perCapitaEmissions.toFixed(2)} metric tons of CO2 per employee.</p>
-            <p><strong>Carbon Credits:</strong> Consider purchasing carbon credits to offset the {currentEmissions.totalEmissions.toFixed(2)} metric tons of total emissions.</p>
+            <p><strong>Methane Capture:</strong> Implement systems to capture and utilize the {kgToTons(currentEmissions.methaneReleased).toFixed(2)} metric tons of methane released.</p>
+            <p><strong>Activity Optimization:</strong> Review and optimize the {currentEmissions.activity} process to reduce its {kgToTons(currentEmissions.activityEmission).toFixed(2)} metric tons of CO2 emissions.</p>
+            <p><strong>Employee Engagement:</strong> Develop programs to help reduce the {kgToTons(currentEmissions.perCapitaEmissions).toFixed(2)} metric tons of CO2 per employee.</p>
+            <p><strong>Carbon Credits:</strong> Consider purchasing carbon credits to offset the {kgToTons(currentEmissions.totalEmissions).toFixed(2)} metric tons of total emissions.</p>
           </div>
         </CardContent>
       </Card>
