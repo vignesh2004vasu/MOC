@@ -34,7 +34,7 @@ const RegisterForm = () => {
         console.log("Registration successful", data);
         setSuccess("Registration successful. You can now log in.");
         setFormData({ name: "", email: "", password: "" });
-        router.push("/login");
+        router.push("/");
       } else {
         const errorData = await response.json();
         setError(errorData.message || "Registration failed");
@@ -108,6 +108,14 @@ const RegisterForm = () => {
           >
             Register
           </button>
+          <div className="text-center">
+            <p className="text-sm text-gray-600">
+              Already have an account?{" "}
+              <a href="/" className="text-blue-600 hover:underline">
+                Login here
+              </a>
+            </p>
+          </div>
         </form>
       </div>
     </div>
