@@ -4,10 +4,12 @@ import { useRouter } from "next/navigation";
 
 const CarbonEmissionForm = () => {
   const [formData, setFormData] = useState({
-    country: "",
     date: "",
-    sector: "",
-    value: "",
+    activity: "",
+    activityValue: "",
+    fromTime: "",
+    toTime: "",
+    employeeCount: "",
   });
   const [error, setError] = useState("");
   const router = useRouter();
@@ -21,7 +23,6 @@ const CarbonEmissionForm = () => {
     setError("");
     try {
       const response = await fetch("/api/carbonemission", {
-        // Corrected URL
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -32,7 +33,7 @@ const CarbonEmissionForm = () => {
       if (response.ok) {
         const data = await response.json();
         console.log("Carbon emission record created", data);
-        router.push("/success"); // Redirect or handle success as needed
+        router.push("/success");
       } else {
         const errorData = await response.json();
         setError(errorData.message || "Submission failed");
@@ -52,23 +53,6 @@ const CarbonEmissionForm = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
-              htmlFor="country"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Country
-            </label>
-            <input
-              type="text"
-              name="country"
-              id="country"
-              value={formData.country}
-              onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
-              required
-            />
-          </div>
-          <div>
-            <label
               htmlFor="date"
               className="block text-sm font-medium text-gray-700"
             >
@@ -86,16 +70,16 @@ const CarbonEmissionForm = () => {
           </div>
           <div>
             <label
-              htmlFor="sector"
+              htmlFor="activity"
               className="block text-sm font-medium text-gray-700"
             >
-              Sector
+              Activity
             </label>
             <input
               type="text"
-              name="sector"
-              id="sector"
-              value={formData.sector}
+              name="activity"
+              id="activity"
+              value={formData.activity}
               onChange={handleChange}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
               required
@@ -103,16 +87,67 @@ const CarbonEmissionForm = () => {
           </div>
           <div>
             <label
-              htmlFor="value"
+              htmlFor="activityValue"
               className="block text-sm font-medium text-gray-700"
             >
-              Value
+              Activity Value
             </label>
             <input
               type="number"
-              name="value"
-              id="value"
-              value={formData.value}
+              name="activityValue"
+              id="activityValue"
+              value={formData.activityValue}
+              onChange={handleChange}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
+              required
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="fromTime"
+              className="block text-sm font-medium text-gray-700"
+            >
+              From Time
+            </label>
+            <input
+              type="datetime-local"
+              name="fromTime"
+              id="fromTime"
+              value={formData.fromTime}
+              onChange={handleChange}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
+              required
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="toTime"
+              className="block text-sm font-medium text-gray-700"
+            >
+              To Time
+            </label>
+            <input
+              type="datetime-local"
+              name="toTime"
+              id="toTime"
+              value={formData.toTime}
+              onChange={handleChange}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
+              required
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="employeeCount"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Employee Count
+            </label>
+            <input
+              type="number"
+              name="employeeCount"
+              id="employeeCount"
+              value={formData.employeeCount}
               onChange={handleChange}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
               required

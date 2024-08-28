@@ -6,28 +6,54 @@ export async function POST(req: Request) {
   try {
     await connectMongoDB();
 
-    const { country, date, sector, value } = await req.json();
+   
+    const { date, activity, activityValue, fromTime, toTime, employeeCount } = await req.json();
 
-    // Validate input data
-    if (!country || !date || !sector || value == null) {
+    if (!date || !activity || activityValue == null || !fromTime || !toTime || employeeCount == null) {
       return NextResponse.json({ message: 'All fields are required' }, { status: 400 });
     }
 
-    // Create a new CarbonEmission document
+    const fromDate = new Date(fromTime);
+    const toDate = new Date(toTime);
+    const activityHours = (toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60);
+
+    if (activityHours <= 0) {
+      return NextResponse.json({ message: 'Invalid time range' }, { status: 400 });
+    }
+
+    const activityEmission = calculateActivityEmission(activityValue, activityHours);
+    const methaneReleased = calculateMethaneReleased(activityHours);
+    const totalEmissions = activityEmission + methaneReleased;
+    const perCapitaEmissions = totalEmissions / employeeCount;
+
     const carbonEmission = new CarbonEmission({
-      country,
       date: new Date(date),
-      sector,
-      value,
+      activity,
+      activityValue,
+      activityHours,
+      activityEmission,
+      totalEmissions,
+      fromTime: new Date(fromTime),
+      toTime: new Date(toTime),
+      methaneReleased,
+      employeeCount,
+      perCapitaEmissions,
+      timestamp: new Date(),
     });
 
-    // Save the document to the database
     await carbonEmission.save();
 
-    // Return success response
     return NextResponse.json({ message: 'Carbon emission record created', carbonEmission });
   } catch (error) {
-    console.error("Error creating carbon emission record:", error);
+    console.error('Error creating carbon emission record:', error);
     return NextResponse.json({ message: 'Server error' }, { status: 500 });
   }
+}
+
+function calculateActivityEmission(activityValue: number, activityHours: number): number {
+  return activityValue * activityHours * 0.025;
+}
+
+function calculateMethaneReleased(activityHours: number): number {
+  return activityHours * 0.2;
 }

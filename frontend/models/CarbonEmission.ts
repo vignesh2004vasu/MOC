@@ -3,17 +3,51 @@ import mongoose from 'mongoose';
 const CarbonEmissionSchema = new mongoose.Schema({  
   date: {
     type: Date,
+    default: () => new Date(), 
     required: [true, 'Please provide a date'],
   },
-  sector: {
-    type: String,
-    required: [true, 'Please provide a sector'],
+  fromTime: {
+    type: Date,
+    required: [true, 'Please provide a start time'],
   },
-  value: {
+  toTime: {
+    type: Date,
+    required: [true, 'Please provide an end time'],
+  },
+  activity: {
+    type: String,
+    required: [true, 'Please provide a Activity'],
+  },
+  
+  activityValue: {
     type: Number,
     required: [true, 'Please provide a value'],
   },
-  timestamp: {
+  activityHours: {
+    type: Number,
+    required: true
+}, 
+activityEmission: {
+  type: Number,
+  required: [true, 'Please provide a value'],
+},
+totalEmissions: {
+  type: Number,
+  required: true
+},
+methaneReleased: {
+  type: Number,
+  required: true
+},
+employeeCount: {
+    type: Number,
+    required: true
+},
+perCapitaEmissions: {
+    type: Number,
+    required: true
+},
+timestamp: {
     type: Date,
     default: () => new Date(), 
   },
